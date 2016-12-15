@@ -3,14 +3,24 @@ TEMPLATE = lib
 # Static library without any Qt functionality
 QT -= gui core
 
-CONFIG += static exceptions stl console c++14 withsound
+CONFIG += static exceptions stl console c++14 withsound subproject
 CONFIG -= thread qt rtti warn_on
 
 VERSION = 1.0.0
 
 INCLUDEPATH += include/simpleini
-INCLUDEPATH += ../SDK/CHeaders/XPLM
-INCLUDEPATH += ../SDK/CHeaders/Widgets
+
+subproject {
+    INCLUDEPATH += ../../SDK/CHeaders/XPLM
+    INCLUDEPATH += ../../SDK/CHeaders/Widgets
+    include(../common.pri)
+    DESTDIR = ../../../ppl/lib
+} else {
+    INCLUDEPATH += ../SDK/CHeaders/XPLM
+    INCLUDEPATH += ../SDK/CHeaders/Widgets
+    DEFINES += PRIVATENAMESPACE=$$PRIVATENAMESPACE
+    DESTDIR = lib$$PRIVATENAMESPACE
+}
 
 # Defined to use X-Plane SDK 2.1 capabilities - no backward compatibility before 10.0
 DEFINES += XPLM200 XPLM210
@@ -18,8 +28,6 @@ DEFINES += XPLM200 XPLM210
 OBJECTS_DIR  = objects
 TARGET = ppl
 
-DEFINES += PRIVATENAMESPACE=$$PRIVATENAMESPACE
-DESTDIR = lib$$PRIVATENAMESPACE
 
 standalone {
     DEFINES += BUILD_FOR_STANDALONE
