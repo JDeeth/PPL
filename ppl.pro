@@ -77,12 +77,13 @@ HEADERS += \
     src/logwriter.h \
     src/basics.h \
     src/menuitem.h \
-    src/action.h \
     src/smoothed.h \
     src/processor.h \
     src/namespaces.h \
     src/vertexbuffer.hpp \
-    src/commandbase.h
+    src/commandbase.h \
+    src/menuaction.h \
+    src/action.h
 
 SOURCES += \
     src/pluginpath.cpp \
@@ -145,3 +146,6 @@ withserialization {
     SOURCES += src/sharedobject.cpp
 
 }
+
+DISTFILES += \
+    README.md

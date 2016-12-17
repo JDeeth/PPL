@@ -27,7 +27,7 @@
 */
 
 #include "menuitem.h"
-#include "action.h"
+#include "menuaction.h"
 #include <iostream>
 
 using namespace PPLNAMESPACE;
@@ -63,7 +63,7 @@ void MenuItem::menuHandler(void *iRef)
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-void MenuItem::addSubItem(Action* action)
+void MenuItem::addSubItem(MenuAction* action)
 {
     m_actions.push_back(action);
     XPLMAppendMenuItem(m_menu_id, action->name().c_str(), reinterpret_cast<void*>(m_actions.size()-1), 1);

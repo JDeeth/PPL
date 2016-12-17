@@ -69,7 +69,7 @@ Draws a window on the screen
 **menuitem.h**
 Adds item to plugin menu
 
-**action.h**
+**menuaction.h**
 Abstract base for menu items
 
 
