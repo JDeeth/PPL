@@ -31,6 +31,8 @@
 
 #include <vector>
 #include <string>
+#include "menuaction.h"
+#include "menuitem.h"
 #include "namespaces.h"
 
 namespace PPLNAMESPACE {
@@ -123,6 +125,23 @@ private:
      * reimplement to unregister the custom dataref(s)
      */
     virtual bool withdrawPublishedData() = 0;
+
+};
+
+/**
+  * Menu action for enabling/disabling a LogicHandler.
+  * Can be a data member of LogicHandler.
+  * @author (c) 2016 by Jack Deeth
+  */
+class LHEnable : public PPL::MenuAction {
+
+public:
+  LHEnable(PPL::LogicHandler &lh, PPL::MenuItem &menu);
+  const std::string name() const override;
+  void doAction() override;
+
+private:
+    PPL::LogicHandler &lh_;
 
 };
 

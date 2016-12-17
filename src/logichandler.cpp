@@ -27,6 +27,7 @@
 */
 
 #include <iostream>
+#include <string>
 
 #include "XPLMProcessing.h"
 
@@ -80,4 +81,22 @@ void LogicHandler::unhookFromSim()
     XPLMUnregisterFlightLoopCallback(HandlerCallbackInit, this);
     XPLMUnregisterFlightLoopCallback(HandlerCallbackProcess, this);
     this->withdrawPublishedData();
+}
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+LHEnable::LHEnable(LogicHandler &lh, PPL::MenuItem &menu) : lh_(lh)
+{
+    menu.addSubItem(this);
+}
+
+const std::string LHEnable::name() const
+{
+    return "Toggle " + lh_.name();
+}
+
+void LHEnable::doAction()
+{
+    lh_.suspend(!lh_.isSuspended());
 }
