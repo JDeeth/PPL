@@ -42,7 +42,6 @@
 #error "No platform defined"
 #endif
 
-#include <boost/noncopyable.hpp>
 #include "namespaces.h"
 
 namespace PPLNAMESPACE {
@@ -55,7 +54,7 @@ namespace PPLNAMESPACE {
   * @version 0.5
   * @file alcontextchanger.h
   */
-class ALContextChanger : boost::noncopyable
+class ALContextChanger
 {
 public:
 
@@ -70,6 +69,9 @@ public:
       * switch back to whatever context was active at the time the object was created.
       */
     ~ALContextChanger();
+
+    ALContextChanger(const ALContextChanger &) = delete;
+    ALContextChanger &operator=(const ALContextChanger &) = delete;
 
 private:
     ALCcontext* m_other_context;

@@ -131,8 +131,7 @@ ALContextManager::~ALContextManager()
 
 ALSoundBuffer* ALContextManager::findSoundById(int id) throw(SoundNotFoundError)
 {
-    boost::ptr_map<int, ALSoundBuffer>::iterator it;
-    it = m_sounds.find(id);
+    auto it = m_sounds.find(id);
     if (it != m_sounds.end())
     {
         return it->second;
@@ -149,7 +148,7 @@ ALSoundBuffer* ALContextManager::findSoundById(int id) throw(SoundNotFoundError)
 
 int ALContextManager::addSoundFromFile(const std::string& filename) throw(SoundLoadError)
 {
-    std::pair<boost::ptr_map<int, ALSoundBuffer>::iterator, bool> return_value;
+    std::pair<std::map<int, ALSoundBuffer*>::iterator, bool> return_value;
     m_internal_counter++;
     ALContextChanger cc(m_my_context);
     // object cc is not used, but it changes context, and since cc is on the stack,
@@ -157,9 +156,9 @@ int ALContextManager::addSoundFromFile(const std::string& filename) throw(SoundL
     // this is known as the RAII idiom
     try
     {
-        return_value = m_sounds.insert(m_internal_counter, new ALSoundBuffer(filename));
-    } catch (ALSoundBuffer::SoundPlayingError& ex)
-    {
+      return_value =
+          m_sounds.insert({m_internal_counter, new ALSoundBuffer(filename)});
+    } catch (ALSoundBuffer::SoundPlayingError &ex) {
         std::stringstream stream;
         stream << "Failure inserting soundfile " << filename << " AL error: "
                << ex.what();
@@ -261,8 +260,7 @@ void ALContextManager::unLoopSound(int id) throw (SoundNotFoundError)
 
 void ALContextManager::removeSound(int id) throw (SoundNotFoundError)
 {
-    boost::ptr_map<int, ALSoundBuffer>::iterator it;
-    it = m_sounds.find(id);
+    auto it = m_sounds.find(id);
     if (it != m_sounds.end())
     {
         ALContextChanger cc(m_my_context);
@@ -281,7 +279,7 @@ void ALContextManager::removeSound(int id) throw (SoundNotFoundError)
 void ALContextManager::deleteAllSounds()
 {
     ALContextChanger cc(m_my_context);
-    for (boost::ptr_map<int, ALSoundBuffer>::iterator it = m_sounds.begin() ; it != m_sounds.end(); ++it)
+    for (auto it = m_sounds.begin() ; it != m_sounds.end(); ++it)
         it->second->stop();
     m_sounds.erase(m_sounds.begin(),m_sounds.end());
 }

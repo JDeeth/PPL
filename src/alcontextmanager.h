@@ -30,9 +30,7 @@
 #define ALCONTEXTMANAGER_H
 
 #include <string>
-
-#include <boost/noncopyable.hpp>
-#include <boost/ptr_container/ptr_map.hpp>
+#include <map>
 
 #if APL == 1
 #include <OpenAL/al.h>
@@ -60,7 +58,7 @@ namespace PPLNAMESPACE {
   * @version 0.5
   * @author (c) 2009-2011 by Philipp Muenzel
   */
-class ALContextManager : boost::noncopyable
+class ALContextManager
 {
 public:
     class SoundNotFoundError : public std::runtime_error
@@ -96,6 +94,9 @@ public:
       * deletes context and cleans up loaded sounds
       */
     ~ALContextManager();
+
+    ALContextManager(const ALContextManager &) = delete;
+    ALContextManager &operator=(const ALContextManager &) = delete;
 
     /**
       * tries to load a sound by a file (format depends on what alut distro supports)
@@ -148,7 +149,7 @@ private:
     void deleteAllSounds();
 
 private:
-    boost::ptr_map<int, ALSoundBuffer> m_sounds;
+    std::map<int, ALSoundBuffer*> m_sounds;
     int m_internal_counter;
     ALCdevice* m_device;
     ALCcontext* m_my_context;

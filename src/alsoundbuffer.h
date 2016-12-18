@@ -32,8 +32,6 @@
 #include <string>
 #include <stdexcept>
 
-#include <boost/noncopyable.hpp>
-
 #if APL == 1
 #include <OpenAL/al.h>
 #include <OpenAL/alc.h>
@@ -58,7 +56,7 @@ namespace PPLNAMESPACE {
   * @version 0.5
   * @author (c) 2009-2011 by Philipp Muenzel
   */
-class ALSoundBuffer: boost::noncopyable
+class ALSoundBuffer
 {
 public:
     class SoundPlayingError : public std::runtime_error
@@ -97,6 +95,12 @@ public:
       * release the resources, delete buffer and source
       */
     ~ALSoundBuffer();
+
+    /**
+     * Make class noncopyable
+     */
+    ALSoundBuffer(const ALSoundBuffer&) = delete;
+    ALSoundBuffer& operator=(const ALSoundBuffer&) = delete;
 
     /**
       * set up the listener at coordinate origin and play the sound buffer

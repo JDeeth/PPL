@@ -3,7 +3,7 @@ TEMPLATE = lib
 # Static library without any Qt functionality
 QT -= gui core
 
-CONFIG += static exceptions stl console c++11
+CONFIG += static exceptions stl console c++14 withsound
 CONFIG -= thread qt rtti warn_on
 
 VERSION = 1.0.0
