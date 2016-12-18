@@ -41,6 +41,14 @@ Processor::~Processor()
     XPLMUnregisterFlightLoopCallback(Processor::flightloopcallback, this);
 }
 
+void Processor::setInterval(float interval, bool from_now)
+{
+    XPLMSetFlightLoopCallbackInterval(Processor::flightloopcallback,
+                                      interval,
+                                      from_now ? 1 : 0,
+                                      this);
+}
+
 float Processor::flightloopcallback(float inElapsedSinceLastCall,
                                     float inElapsedTimeSinceLastFlightLoop,
                                     int inCounter,

@@ -38,6 +38,7 @@ public:
     Processor(float time_to_start = -1.f);
     virtual ~Processor();
     virtual float callback(float, float, int) = 0;
+    void setInterval(float interval, bool from_now = true);
 private:
     static float flightloopcallback(float, float, int, void* refcon);
 };
