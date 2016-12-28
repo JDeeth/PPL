@@ -14,7 +14,6 @@ subproject {
     INCLUDEPATH += ../../SDK/CHeaders/XPLM
     INCLUDEPATH += ../../SDK/CHeaders/Widgets
     include(../common.pri)
-    DESTDIR = ../../../ppl/lib
 } else {
     INCLUDEPATH += ../SDK/CHeaders/XPLM
     INCLUDEPATH += ../SDK/CHeaders/Widgets
