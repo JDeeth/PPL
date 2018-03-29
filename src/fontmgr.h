@@ -1,4 +1,5 @@
-/* Copyright (c) 2006, Ben Supnik and Chris Serio.
+/*
+ * Copyright (c) 2006, Ben Supnik and Chris Serio.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -17,8 +18,8 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ *
  */
-
 #ifndef _Fonts_h_
 #define _Fonts_h_
 
