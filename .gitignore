@@ -4,3 +4,6 @@ objects/
 ppl.pro.user
 *.autosave
 lib/
+*.swp
+ppl.pro.orig
+src/*.orig

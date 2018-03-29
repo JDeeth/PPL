@@ -1,4 +1,4 @@
-// Copyright (c) 2013, Philipp Muenzel mail@philippmuenzel.de
+// Copyright (c) 2017, Philipp Ringler philipp@x-plane.com
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -30,10 +30,10 @@
 
 #include "XPLMProcessing.h"
 
-#include "logichandler.h"
 #include "log.h"
+#include "logichandler.h"
 
-using namespace PPLNAMESPACE;
+using namespace PPL;
 
 float HandlerCallbackInit(float, float, int, void* inRefCon)
 {
@@ -80,22 +80,4 @@ void LogicHandler::unhookFromSim()
     XPLMUnregisterFlightLoopCallback(HandlerCallbackInit, this);
     XPLMUnregisterFlightLoopCallback(HandlerCallbackProcess, this);
     this->withdrawPublishedData();
-}
-
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-
-LHEnable::LHEnable(LogicHandler &lh, PPL::MenuItem &menu) : lh_(lh)
-{
-    menu.addSubItem(this);
-}
-
-const std::string LHEnable::name() const
-{
-    return "Toggle " + lh_.name();
-}
-
-void LHEnable::doAction()
-{
-    lh_.suspend(!lh_.isSuspended());
 }

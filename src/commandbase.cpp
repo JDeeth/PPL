@@ -28,7 +28,7 @@
 
 #include "commandbase.h"
 
-namespace PPLNAMESPACE {
+namespace PPL {
 Command::Command(const char *inName, const char *inDescription, int inBefore) : m_before_(inBefore)
 {
     m_ref_ = XPLMCreateCommand(inName,inDescription);

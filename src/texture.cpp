@@ -1,4 +1,4 @@
-// Copyright (c) 2013, Philipp Muenzel mail@philippmuenzel.de
+// Copyright (c) 2017, Philipp Ringler philipp@x-plane.com
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -35,24 +35,17 @@
 #endif
 
 #if IBM
-#define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include <gl\gl.h>
 #include <gl\glu.h>
 #elif LIN
 #include <GL/gl.h>
 #include <GL/glu.h>
-#else
-#if __GNUC__
+#elif APL
 #include <OpenGL/gl.h>
-#include <OpenGL/glu.h>
-#else
-#include <gl.h>
-#include <glu.h>
-#endif
 #endif
 
-using namespace PPLNAMESPACE;
+using namespace PPL;
 
 #if APL && defined(__ppc__)
 int16_t Endian(int16_t Data)
@@ -160,12 +153,16 @@ Texture::Texture(const std::string& file_name)
         XPLMBindTexture2d(m_id, 0);
 #endif
 
-
+#if APL
+        glGenerateMipmap(GL_TEXTURE_2D);
+#else
         gluBuild2DMipmaps(GL_TEXTURE_2D, 3, m_imagedata.Width, m_imagedata.Height, GL_RGB, GL_UNSIGNED_BYTE, &m_imagedata.pData[0]);
+#endif
 
         glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-    } else if (file_name.rfind(".tga") != std::string::npos)
+    }
+    else if (file_name.rfind(".tga") != std::string::npos)
     {
         GLubyte TGAheader[12]={0,0,2,0,0,0,0,0,0,0,0,0};    // Uncompressed TGA Header
         GLubyte TGAcompare[12];                             // Used To Compare TGA Header
@@ -208,12 +205,9 @@ Texture::Texture(const std::string& file_name)
         imageSize       = m_imagedata.Width*m_imagedata.Height*bytesPerPixel;   // Calculate The Memory Required For The TGA Data
 
         try {
-            unsigned char* buffer = new unsigned char[imageSize];
-            if (fread(reinterpret_cast<char*>(buffer), 1, imageSize, file) == imageSize)
+            m_imagedata.pData.resize(imageSize);
+            if (fread(m_imagedata.pData.data(), 1, imageSize, file) != imageSize)
             {
-                m_imagedata.pData.assign(buffer, buffer+imageSize);
-                delete[] buffer;
-            } else {
                 throw std::runtime_error("Image size of tga doesn't match");
             }
         } catch (std::bad_alloc&)
@@ -245,7 +239,9 @@ Texture::Texture(const std::string& file_name)
 
         glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-    } else {
+    }
+    else
+    {
         throw std::runtime_error("The texture file is neither a BMP nor a TGA. Other fileformats are not supported.");
     }
 }

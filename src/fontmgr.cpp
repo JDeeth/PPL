@@ -27,11 +27,10 @@
 
 #if APL
 #include <OpenGL/gl.h>
-#include <OpenGL/glu.h>
 #elif IBM
 #include <windows.h>
+#include <GL/glew.h>
 #include <GL/gl.h>
-#include <GL/glu.h>
 #else
 #include <GL/gl.h>
 #include <GL/glu.h>
@@ -41,7 +40,7 @@
 #include "XPLMGraphics.h"
 #endif
 
-using namespace PPLNAMESPACE;
+using namespace PPL;
 
 /*
     BEN SEZ: Mac has 3 ways to get true type fonts:
@@ -59,7 +58,22 @@ using namespace PPLNAMESPACE;
  */
 #ifndef NDEBUG
 #include <cassert>
-#define OGL_ERROR(expression) expression; GLenum err = glGetError(); if(err){ XPLMDebugString((const char*)gluErrorString(err)); XPLMDebugString("\n"); assert(false);}
+const char* getErrorString(GLenum error)
+{
+    switch (error)
+    {
+    case GL_INVALID_ENUM:       return "Invalid enum";
+    case GL_INVALID_VALUE:      return "Invalid value";
+    case GL_INVALID_OPERATION:  return "Invalid operation";
+    case GL_INVALID_FRAMEBUFFER_OPERATION:  return "Invalid framebuffer operation";
+    case GL_OUT_OF_MEMORY:      return "Out of memory";
+    case GL_STACK_UNDERFLOW:    return "Stack underflow";
+    case GL_STACK_OVERFLOW:     return "Stack overflow";
+    }
+    return "Unknown error code";
+}
+
+#define OGL_ERROR(expression) expression; err = glGetError(); if(err){ XPLMDebugString(getErrorString(err)); XPLMDebugString("\n"); assert(false);}
 #else
 #define OGL_ERROR(expression) expression;
 #endif
@@ -86,7 +100,7 @@ using namespace PPLNAMESPACE;
  * an opaque pointer to the struct that stores the info for their class
  * so we use that for draw operations.
  */
-namespace PPLNAMESPACE {
+namespace PPL {
 struct	FontInfo_t {
     int		nRefCnt;
     int		tex_id;				// OpenGL texture ID for bitmap
@@ -305,14 +319,19 @@ FontHandle FontMgr::loadFont(const char* inFontPath, const char * inStartMem, co
     tex_map_.insert(TextureMap_t::value_type(inFontPath, info));
 
     // Create some texture memory in OpenGL for this font
-    //OGL_ERROR(glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, info->tex_width,
-    //				info->tex_height, 0, GL_ALPHA, GL_UNSIGNED_BYTE, textureData))
+    GLenum err = 0;
+    OGL_ERROR(glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, info->tex_width,
+                    info->tex_height, 0, GL_ALPHA, GL_UNSIGNED_BYTE, textureData))
 
     // Now build mipmaps based on this texture
-    char buf[256];
-    sprintf(buf, "Trying to build mipmaps for font %s, tex width %d, tex height %d, texture data %p\n", inFontPath, info->tex_width, info->tex_height, textureData);
+    char buf[512];
+    snprintf(buf, 512, "Trying to build mipmaps for font %s, tex width %d, tex height %d, texture data %p\n", inFontPath, info->tex_width, info->tex_height, (void*)textureData);
     XPLMDebugString(buf);
+#if APL
+    OGL_ERROR(glGenerateMipmap(GL_TEXTURE_2D))
+#else
     OGL_ERROR(gluBuild2DMipmaps(GL_TEXTURE_2D, GL_ALPHA, info->tex_width, info->tex_height, GL_ALPHA, GL_UNSIGNED_BYTE, textureData))
+#endif
 
     // Ben sez: use nearest neighbor for exact-size fonts...pixel accurate!
     // Use linear for scaled fonts....less artifacts when we scale.
@@ -339,6 +358,7 @@ void FontMgr::unloadFont(FontHandle inFont)
         return;
 
     // Delete the texture from OpenGL memory
+    GLenum err = 0;
     OGL_ERROR(glDeleteTextures(1, (GLuint*)&(inFont->tex_id)))
 
     // Remove it from our map

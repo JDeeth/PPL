@@ -1,4 +1,4 @@
-// Copyright (c) 2013, Philipp Muenzel mail@philippmuenzel.de
+// Copyright (c) 2017, Philipp Ringler philipp@x-plane.com
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -26,10 +26,10 @@
 // either expressed or implied, of the FreeBSD Project.
 
 #include "menuitem.h"
-#include "menuaction.h"
+#include "action.h"
 #include <iostream>
 
-using namespace PPLNAMESPACE;
+using namespace PPL;
 
 MenuItem::MenuItem(const std::string& title)
 {
@@ -44,9 +44,7 @@ MenuItem::~MenuItem()
 {
     XPLMClearAllMenuItems(m_menu_id);
     XPLMEnableMenuItem(XPLMFindPluginsMenu(), m_item_id, 0);
-#ifdef XPLM210
     XPLMRemoveMenuItem(XPLMFindPluginsMenu(), m_item_id);
-#endif
     XPLMDestroyMenu(m_menu_id);
 }
 
@@ -62,7 +60,7 @@ void MenuItem::menuHandler(void *iRef)
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-void MenuItem::addSubItem(MenuAction* action)
+void MenuItem::addSubItem(Action* action)
 {
     m_actions.push_back(action);
     XPLMAppendMenuItem(m_menu_id, action->name().c_str(), reinterpret_cast<void*>(m_actions.size()-1), 1);

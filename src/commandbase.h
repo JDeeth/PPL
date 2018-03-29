@@ -28,10 +28,9 @@
 
 #ifndef COMMAND_H
 #define COMMAND_H
-#include "namespaces.h"
 #include "XPLMUtilities.h"
 
-namespace PPLNAMESPACE {
+namespace PPL {
 
 typedef int (* CommandCallback)(XPLMCommandRef,XPLMCommandPhase);
 

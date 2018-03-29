@@ -1,4 +1,4 @@
-// Copyright (c) 2013, Philipp Muenzel mail@philippmuenzel.de
+// Copyright (c) 2017, Philipp Ringler philipp@x-plane.com
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -26,10 +26,11 @@
 // either expressed or implied, of the FreeBSD Project.
 
 #include <cstring>
+#include <algorithm>
 
 #include "owneddata.h"
 
-using namespace PPLNAMESPACE;
+using namespace PPL;
 
 template <>
 void OwnedData<int>::registerRead()
@@ -232,10 +233,10 @@ void OwnedData<std::vector<float> >::registerReadWrite()
 int PPL::readFuncStr(void* inRefCon, void* outValue, int inOffset, int inMaxLength)
 {
     OwnedData<std::string>* p_owned_data = static_cast<OwnedData<std::string>*>(inRefCon);
-    long length = static_cast<long>(p_owned_data->value().length());
+    std::size_t length = p_owned_data->value().length();
     if (outValue == NULL)
         return length;
-    long maxlen = (inMaxLength < length)?inMaxLength:length;
+    std::size_t maxlen = std::min(std::size_t(inMaxLength), length);
     strncpy(static_cast<char*>(outValue), p_owned_data->value().substr(inOffset, maxlen).c_str(), maxlen);
     return inMaxLength;
 }

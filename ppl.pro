@@ -3,30 +3,27 @@ TEMPLATE = lib
 # Static library without any Qt functionality
 QT -= gui core
 
-CONFIG += static exceptions stl console c++14 withsound subproject
-CONFIG -= thread qt rtti warn_on
+CONFIG += static console c++14 warn_on subproject
+CONFIG -= thread qt
 
-VERSION = 1.0.0
+VERSION = 2.0.0
 
 INCLUDEPATH += include/simpleini
 
 subproject {
     INCLUDEPATH += ../../SDK/CHeaders/XPLM
     INCLUDEPATH += ../../SDK/CHeaders/Widgets
-    include(../common.pri)
 } else {
     INCLUDEPATH += ../SDK/CHeaders/XPLM
     INCLUDEPATH += ../SDK/CHeaders/Widgets
-    DEFINES += PRIVATENAMESPACE=$$PRIVATENAMESPACE
-    DESTDIR = lib$$PRIVATENAMESPACE
 }
 
-# Defined to use X-Plane SDK 2.1 capabilities - no backward compatibility before 10.0
-DEFINES += XPLM200 XPLM210
+# Gonna not define XPLM300 and see what breaks...
+DEFINES += XPLM200 XPLM210 
 
 OBJECTS_DIR  = objects
+DESTDIR = lib
 TARGET = ppl
-
 
 standalone {
     DEFINES += BUILD_FOR_STANDALONE
@@ -35,7 +32,7 @@ standalone {
 
 macx {
     DEFINES += APL=1 IBM=0 LIN=0
-    QMAKE_CXXFLAGS += -Wall -Wextra -Wfloat-equal -Wno-c++11-narrowing -pedantic
+    QMAKE_CXXFLAGS += -Wextra -Wfloat-equal -pedantic
 
     # Build for multiple architectures.
     # The following line is only needed to build universal on PPC architectures.
@@ -45,26 +42,28 @@ macx {
 }
 
 win32 {
+    INCLUDEPATH += include/glew/include
     DEFINES += APL=0 IBM=1 LIN=0
-    !win32-msvc2008:!win32-msvc2010 {
-        QMAKE_CXXFLAGS += -Werror -Wall -Wextra -pedantic
-    } else {
-        CONFIG += warn_on
-        #disable the deprecated warnings that make writing standards-compliant code impossible
-        QMAKE_CXXFLAGS += -wd4996
-        DEFINES += NOMINMAX
-    }
-    INCLUDEPATH += include C:\\Boost\\include\\boost-1_52 openALsoft/include
+    #disable the deprecated warnings that make writing standards-compliant code impossible
+    QMAKE_CXXFLAGS += -wd4996
+    QMAKE_CXXFLAGS_DEBUG =  -Zi -MTd
+    QMAKE_CXXFLAGS_RELEASE = -MT
+    DEFINES += _USE_MATH_DEFINES NOMINMAX WIN32_LEAN_AND_MEAN GLEW_STATIC=1
 }
 
-unix:!macx {
-    DEFINES += APL=0 IBM=0 LIN=1 HAVE_TR1
-    QMAKE_CXXFLAGS += -Wall -Wextra -Wfloat-equal -pedantic -Wno-c++11-narrowing
-    QMAKE_CXXFLAGS += -fvisibility=hidden -fno-stack-protector
+linux {
+    DEFINES += APL=0 IBM=0 LIN=1
+    QMAKE_CXXFLAGS += -Wextra -Wfloat-equal -Wno-c++11-narrowing -pedantic
+    QMAKE_CXXFLAGS += -fvisibility=hidden
+    QMAKE_CXXFLAGS_CXX11 = -std=c++14
 }
 
 CONFIG( debug, debug|release ) {
     # debug settings go here
+    !win32 {
+        QMAKE_CXXFLAGS_DEBUG += -ftrapv
+    }
+    TARGET = ppld
 } else {
     DEFINES += NDEBUG
 }
@@ -84,13 +83,10 @@ HEADERS += \
     src/logwriter.h \
     src/basics.h \
     src/menuitem.h \
+    src/action.h \
     src/smoothed.h \
     src/processor.h \
-    src/namespaces.h \
-    src/vertexbuffer.hpp \
-    src/commandbase.h \
-    src/menuaction.h \
-    src/action.h
+    src/vertexbuffer.hpp
 
 SOURCES += \
     src/pluginpath.cpp \
@@ -105,13 +101,14 @@ SOURCES += \
     src/log.cpp \
     src/logwriter.cpp \
     src/menuitem.cpp \
-    src/smoothed.cpp \
     src/processor.cpp \
     src/vertexbuffer.cpp \
     src/commandbase.cpp
 
 withsound {
-    macx:INCLUDEPATH+=/usr/local/include/
+    win32 {
+        INCLUDEPATH += include/openal-soft/include
+    }
     HEADERS += \
         src/alsoundbuffer.h \
         src/alcontextmanager.h \
@@ -124,35 +121,16 @@ withsound {
 
 withfreetype {
     win32 {
-        INCLUDEPATH += include ../../Downloads/freetype-2.3.5/include
+        INCLUDEPATH += include/freetype2/include
         DEFINES+=FREETYPE2_STATIC
     }
-    unix:!macx {
+    linux {
         INCLUDEPATH += /usr/include/freetype2
     }
     macx {
-        INCLUDEPATH += /usr/local/include/freetype2 /usr/X11/include/freetype2/
+        INCLUDEPATH += /usr/X11/include/freetype2/
     }
 
     HEADERS += src/fontmgr.h
     SOURCES += src/fontmgr.cpp
 }
-
-withserialization {
-    win32 {
-        INCLUDEPATH += C:\\Boost\\include\\boost-1_52
-    }
-    unix:!macx {
-        INCLUDEPATH += /usr/local/include/
-    }
-    macx {
-        INCLUDEPATH += /usr/local/include/
-    }
-
-    HEADERS += src/sharedobject.h
-    SOURCES += src/sharedobject.cpp
-
-}
-
-DISTFILES += \
-    README.md

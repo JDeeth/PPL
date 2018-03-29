@@ -1,4 +1,4 @@
-// Copyright (c) 2013, Ben Supnik, Philipp Münzel
+// Copyright (c) 2017, Philipp Ringler philipp@x-plane.com
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -31,24 +31,19 @@
 #include <cstddef>
 
 #if APL == 1
-#include <OpenGL/OpenGL.h>
-#include <OpenGL/glu.h>
+#include <OpenGL/gl.h>
 #elif IBM == 1
-#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include "GL/glew.h"
 #include <gl/gl.h>
-#include <gl/glu.h>
 #elif LIN == 1
 #include <GL/glew.h>
 #include <GL/gl.h>
-#include <GL/glu.h>
 #endif
 
 #include "XPLMGraphics.h"
-#include "namespaces.h"
 
-namespace PPLNAMESPACE {
+namespace PPL{
 
 
 /**

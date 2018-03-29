@@ -1,4 +1,4 @@
-// Copyright (c) 2013, Philipp Muenzel mail@philippmuenzel.de
+// Copyright (c) 2017, Philipp Ringler philipp@x-plane.com
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -29,7 +29,7 @@
 
 #include "messagewindow.h"
 
-using namespace PPLNAMESPACE;
+using namespace PPL;
 
 MessageWindow::MessageWindow(int width, int height, const std::string& title, const std::string& message, bool quit):
         m_is_displayed(false),
@@ -162,7 +162,7 @@ void MessageWindow::display()
     }
 
     XPSetWidgetProperty(m_screen_widget, xpProperty_SubWindowType, xpSubWindowStyle_SubWindow);
-    XPSetWidgetProperty(m_box_widget, xpProperty_Object, reinterpret_cast<long>(this));
+    XPSetWidgetProperty(m_box_widget, xpProperty_Object, reinterpret_cast<intptr_t>(this));
     XPAddWidgetCallback(m_box_widget, widgetCallback);
     m_is_displayed = true;
 }

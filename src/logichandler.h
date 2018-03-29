@@ -1,4 +1,4 @@
-// Copyright (c) 2013, Philipp Muenzel mail@philippmuenzel.de
+// Copyright (c) 2017, Philipp Ringler philipp@x-plane.com
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -28,13 +28,10 @@
 #ifndef logichandler_h
 #define logichandler_h
 
-#include <vector>
 #include <string>
-#include "menuaction.h"
-#include "menuitem.h"
-#include "namespaces.h"
+#include <vector>
 
-namespace PPLNAMESPACE {
+namespace PPL {
 
 /**
   * abstract class for all kinds of processing that takes values from XP,
@@ -47,7 +44,7 @@ class LogicHandler {
  public:
 
 
-    virtual ~LogicHandler() {}
+    virtual ~LogicHandler() = default;
 
     /**
      * reimplement to do the setups that have to be done once when data is acessible
@@ -124,23 +121,6 @@ private:
      * reimplement to unregister the custom dataref(s)
      */
     virtual bool withdrawPublishedData() = 0;
-
-};
-
-/**
-  * Menu action for enabling/disabling a LogicHandler.
-  * Can be a data member of LogicHandler.
-  * @author (c) 2016 by Jack Deeth
-  */
-class LHEnable : public PPL::MenuAction {
-
-public:
-  LHEnable(PPL::LogicHandler &lh, PPL::MenuItem &menu);
-  const std::string name() const override;
-  void doAction() override;
-
-private:
-    PPL::LogicHandler &lh_;
 
 };
 

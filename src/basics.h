@@ -1,4 +1,4 @@
-// Copyright (c) 2013, Philipp Muenzel mail@philippmuenzel.de
+// Copyright (c) 2017, Philipp Ringler philipp@x-plane.com
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -28,59 +28,11 @@
 #ifndef BASICS_H
 #define BASICS_H
 
-#if (defined(_WIN32) || defined(__CYGWIN__)) && defined(_MSC_VER)   // Windows && MS Visual C
-#    define MSVC_EXPORT __declspec(dllexport)
-#    pragma warning( disable : 4996 )   // disable deprecation warnings
-#    pragma warning( disable : 4091 )   // disable typedef warning without variable declaration
-#    pragma warning( disable : 4275 )   // non &#8211; DLL-interface classkey 'identifier' used as base for DLL-interface classkey 'identifier'
-#    pragma warning( disable : 4251 )   // like warning above but for templates (like std::string)
-#    pragma warning( disable : 4290 )   // exception handling of MSVC is lousy
-#else
-#    define MSVC_EXPORT
-#endif
-
-#if defined(_MSC_VER)
-
-#    include <float.h>
-#    define isnan _isnan
-
-inline int my_snprintf(char* str, size_t size, const char* format, ...)
-{
-    size_t count;
-    va_list ap;
-    va_start(ap, format);
-    count = _vscprintf(format, ap);
-    _vsnprintf_s(str, size, _TRUNCATE, format, ap);
-    va_end(ap);
-    return count;
-}
-#   define snprintf my_snprintf
-
-#endif
+#include <algorithm>
 #include <cmath>
 
-#include "namespaces.h"
 
-
-namespace PPLNAMESPACE {
-
-template <typename T>
-T round(T r)
-{
-    return (r > 0.0) ? std::floor(r + 0.5) : std::ceil(r - 0.5);
-}
-
-template <typename T>
-T min(const T& a, const T& b)
-{
-    return (a<b)?a:b;
-}
-
-template <typename T>
-T max(const T& a, const T& b)
-{
-    return (a<b)?b:a;
-}
+namespace PPL {
 
 inline long ipow(long base, long exp)
 {

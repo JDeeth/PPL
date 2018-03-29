@@ -1,4 +1,4 @@
-// Copyright (c) 2013, Philipp Muenzel mail@philippmuenzel.de
+// Copyright (c) 2017, Philipp Ringler philipp@x-plane.com
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -25,13 +25,14 @@
 // of the authors and should not be interpreted as representing official policies,
 // either expressed or implied, of the FreeBSD Project.
 
+#include <memory>
 #include <sstream>
 
 #include "XPLMUtilities.h"
-#include "alcontextmanager.h"
 #include "alcontextchanger.h"
+#include "alcontextmanager.h"
 
-using namespace PPLNAMESPACE;
+using namespace PPL;
 
 ALContextManager::ALContextManager():
     m_internal_counter(0),
@@ -128,13 +129,14 @@ ALContextManager::~ALContextManager()
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-ALSoundBuffer* ALContextManager::findSoundById(int id) throw(SoundNotFoundError)
+ALSoundBuffer* ALContextManager::findSoundById(int id)
 {
     auto it = m_sounds.find(id);
     if (it != m_sounds.end())
     {
-        return it->second;
-    } else
+        return it->second.get();
+    }
+    else
     {
         std::stringstream stream;
         stream << "Sound number " << id << " nonexistant.";
@@ -145,27 +147,28 @@ ALSoundBuffer* ALContextManager::findSoundById(int id) throw(SoundNotFoundError)
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-int ALContextManager::addSoundFromFile(const std::string& filename) throw(SoundLoadError)
+int ALContextManager::addSoundFromFile(const std::string& filename)
 {
-    std::pair<std::map<int, ALSoundBuffer*>::iterator, bool> return_value;
-    m_internal_counter++;
     ALContextChanger cc(m_my_context);
     // object cc is not used, but it changes context, and since cc is on the stack,
     // it is destroyed when function exits, which changes back the contexts!
     // this is known as the RAII idiom
     try
     {
-      return_value =
-          m_sounds.insert({m_internal_counter, new ALSoundBuffer(filename)});
-    } catch (ALSoundBuffer::SoundPlayingError &ex) {
+        auto return_value = m_sounds.insert(std::make_pair(++m_internal_counter, std::make_unique<ALSoundBuffer>(filename)));
+
+        if (return_value.second == false)
+        {
+            std::stringstream stream;
+            stream << "Failure inserting soundfile " << filename;
+            throw SoundLoadError(stream.str());
+        }
+    }
+    catch (ALSoundBuffer::SoundPlayingError& ex)
+    {
         std::stringstream stream;
         stream << "Failure inserting soundfile " << filename << " AL error: "
                << ex.what();
-        throw SoundLoadError(stream.str());
-    }
-    if (return_value.second == false) {
-        std::stringstream stream;
-        stream << "Failure inserting soundfile " << filename;
         throw SoundLoadError(stream.str());
     }
     return m_internal_counter;
@@ -174,97 +177,86 @@ int ALContextManager::addSoundFromFile(const std::string& filename) throw(SoundL
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-bool ALContextManager::playSound(int id) throw (SoundNotFoundError, SoundPlayError)
+bool ALContextManager::playSound(int id, float volume)
 {
-    try {
-        ALSoundBuffer* sound = findSoundById(id);
-        try {
-            ALContextChanger cc(m_my_context);
-            sound->play();
-            return true;
-        } catch(ALSoundBuffer::SoundPlayingError& ex)
-        {
-            std::stringstream stream;
-            stream << "Sound number " << id << " failed to play with message: "
-                   << ex.what();
-            throw SoundPlayError(stream.str());
-        }
-    } catch (SoundNotFoundError&)
-    {
-        throw;
-    }
-}
-
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-
-void ALContextManager::stopSound(int id) throw (SoundNotFoundError)
-{
-    try{
-        ALSoundBuffer* sound = findSoundById(id);
-        ALContextChanger cc(m_my_context);
-        sound->stop();
-    } catch(SoundNotFoundError&)
-    {
-        throw;
-    }
-}
-
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-
-void ALContextManager::rewindSound(int id) throw (SoundNotFoundError)
-{
-    try {
-        ALSoundBuffer* sound = findSoundById(id);
-        ALContextChanger cc(m_my_context);
-        sound->rewind();
-    } catch (SoundNotFoundError&) {
-        throw;
-    }
-}
-
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-
-void ALContextManager::loopSound(int id) throw (SoundNotFoundError)
-{
-    try {
-        ALSoundBuffer* sound = findSoundById(id);
-        ALContextChanger cc(m_my_context);
-        sound->setLoop(true);
-    } catch (SoundNotFoundError&) {
-        throw;
-    }
-}
-
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-
-void ALContextManager::unLoopSound(int id) throw (SoundNotFoundError)
-{
+    ALSoundBuffer* sound = findSoundById(id);
     try
     {
-        ALSoundBuffer* sound = findSoundById(id);
         ALContextChanger cc(m_my_context);
-        sound->setLoop(false);
-    } catch (SoundNotFoundError&)
+        sound->play(volume);
+        return true;
+    }
+    catch(ALSoundBuffer::SoundPlayingError& ex)
     {
-        throw;
+        std::stringstream stream;
+        stream << "Sound number " << id << " failed to play with message: "
+               << ex.what();
+        throw SoundPlayError(stream.str());
     }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-void ALContextManager::removeSound(int id) throw (SoundNotFoundError)
+void ALContextManager::stopSound(int id)
+{
+    ALSoundBuffer* sound = findSoundById(id);
+    ALContextChanger cc(m_my_context);
+    sound->stop();
+}
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+void ALContextManager::rewindSound(int id)
+{
+    ALSoundBuffer* sound = findSoundById(id);
+    ALContextChanger cc(m_my_context);
+    sound->rewind();
+}
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+void ALContextManager::loopSound(int id)
+{
+    ALSoundBuffer* sound = findSoundById(id);
+    ALContextChanger cc(m_my_context);
+    sound->setLoop(true);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+void ALContextManager::unLoopSound(int id)
+{
+    ALSoundBuffer* sound = findSoundById(id);
+    ALContextChanger cc(m_my_context);
+    sound->setLoop(false);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+bool ALContextManager::isPlayingSound(int id)
+{
+    ALSoundBuffer* sound = findSoundById(id);
+    ALContextChanger cc(m_my_context);
+    return sound->isPlaying();
+}
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+void ALContextManager::removeSound(int id)
 {
     auto it = m_sounds.find(id);
     if (it != m_sounds.end())
     {
         ALContextChanger cc(m_my_context);
         m_sounds.erase(it);
-    } else
+    }
+    else
     {
         std::stringstream stream;
         stream << "Sound number " << id << " nonexistant.";
@@ -278,7 +270,7 @@ void ALContextManager::removeSound(int id) throw (SoundNotFoundError)
 void ALContextManager::deleteAllSounds()
 {
     ALContextChanger cc(m_my_context);
-    for (auto it = m_sounds.begin() ; it != m_sounds.end(); ++it)
-        it->second->stop();
-    m_sounds.erase(m_sounds.begin(),m_sounds.end());
+    for (auto& it: m_sounds)
+        it.second->stop();
+    m_sounds.clear();
 }

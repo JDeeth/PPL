@@ -1,4 +1,4 @@
-// Copyright (c) 2013, Philipp Muenzel mail@philippmuenzel.de
+// Copyright (c) 2017, Philipp Ringler philipp@x-plane.com
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -27,11 +27,12 @@
 
 #include <cstring>
 #include <cmath>
+#include <climits>
 #include <limits>
 
 #include "dataref.h"
 
-using namespace PPLNAMESPACE;
+using namespace PPL;
 
 
 template<>
@@ -195,8 +196,8 @@ template <>
 DataRef<std::string>::operator std::string() const
 {
     cache_.resize(XPLMGetDatab(m_data_ref, NULL, 0, 0));
-    XPLMGetDatab(m_data_ref, &cache_[0], 0, static_cast<int>(cache_.size()));
-    return std::string(cache_.begin(), cache_.end());
+    XPLMGetDatab(m_data_ref, &cache_[0], 0, cache_.size());
+    return std::string(cache_.data(), strnlen(cache_.data(), cache_.size()));
 }
 
 
@@ -272,8 +273,9 @@ dataref_trait<std::vector<int> >::BasicType DataRef<std::vector<int> >::operator
 template<>
 dataref_trait<std::string>::BasicType DataRef<std::string>::operator[](std::size_t index) const
 {
-    const std::string& s(*this);
-    return s[index];
+    cache_.resize(XPLMGetDatab(m_data_ref, NULL, 0, 0));        // can't use convert to std::string method here, because we might want the raw data with embedded null bytes.
+    XPLMGetDatab(m_data_ref, &cache_[0], 0, cache_.size());
+    return cache_[index];
 }
 
 
@@ -438,7 +440,7 @@ void DataRef<std::string >::reserve()
 }
 
 
-namespace PPLNAMESPACE {
+namespace PPL {
 
 template class DataRef<float>;
 template class DataRef<int>;

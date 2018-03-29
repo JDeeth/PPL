@@ -1,4 +1,4 @@
-// Copyright (c) 2013, Philipp Muenzel mail@philippmuenzel.de
+// Copyright (c) 2017, Philipp Ringler philipp@x-plane.com
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -33,25 +33,24 @@
 
 #include "XPLMDisplay.h"
 #include "XPLMMenus.h"
-#include "XPWidgets.h"
 #include "XPStandardWidgets.h"
-#include "namespaces.h"
+#include "XPWidgets.h"
 
-namespace PPLNAMESPACE {
+namespace PPL {
 
-class MenuAction;
+class Action;
 
 class MenuItem
 {
 public:
     MenuItem(const std::string& title);
     ~MenuItem();
-    void addSubItem(MenuAction* action);
+    void addSubItem(Action* action);
     void menuHandler(void* iRef);
 private:
     static void menuHandler(void* mRef, void* iRef);
     int m_item_id;
-    std::vector<MenuAction*> m_actions;
+    std::vector<Action*> m_actions;
     XPLMMenuID m_menu_id;
 };
 
