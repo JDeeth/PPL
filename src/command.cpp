@@ -1,5 +1,7 @@
-/* Copyright (c) 2013, Julio Campagnolo juliocampagnolo@gmail.com
-// All rights reserved.
+#include "command.h"
+
+/* Copyright (c) 2018, Jack Deeth github@jackdeeth.org.uk
+// All rights reserved
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
@@ -26,26 +28,37 @@
 // either expressed or implied, of the FreeBSD Project.
 */
 
-#ifndef COMMAND_H
-#define COMMAND_H
-#include "XPLMUtilities.h"
-
-namespace PPL {
-
-typedef int (* CommandCallback)(XPLMCommandRef,XPLMCommandPhase);
-
-class Command
-{
-public:
-    Command(const char *inName, const char *inDescription, int inBefore);
-    virtual ~Command();
-    virtual int handler(XPLMCommandRef inCommand, XPLMCommandPhase inPhase) = 0;
-private:
-    XPLMCommandRef m_ref_;
-    int m_before_;
-    static int m_handler_(XPLMCommandRef inCommand, XPLMCommandPhase inPhase,void * inRefcon);
-};
-
+PPL::Command::Command(XPLMCommandRef ref,
+                      std::function<Outcome(XPLMCommandRef, Phase)> cb,
+                      bool run_before_sim)
+    : callback(cb), ref_(ref), before_(run_before_sim ? 1 : 0) {
+  XPLMRegisterCommandHandler(ref_, scb, before_, this);
 }
 
-#endif // COMMAND_H
+PPL::Command::Command(std::string cmd_to_replace,
+                      std::function<Outcome(XPLMCommandRef, Phase)> callback,
+                      bool run_before)
+    : Command(XPLMFindCommand(cmd_to_replace.c_str()), callback, run_before) {}
+
+PPL::Command::Command(std::string new_cmd,
+                      std::string description,
+                      std::function<Outcome(XPLMCommandRef, Phase)> callback,
+                      bool run_before)
+    : Command(XPLMCreateCommand(new_cmd.c_str(), description.c_str()),
+              callback,
+              run_before) {}
+
+PPL::Command::~Command() {
+  XPLMUnregisterCommandHandler(ref_, scb, before_, this);
+}
+
+PPL::Command::Phase PPL::Command::phase() const { return phase_; }
+
+int PPL::Command::scb(XPLMCommandRef ref, XPLMCommandPhase phase, void *vp) {
+  auto cmd = reinterpret_cast<Command *>(vp);
+  if (phase == xplm_CommandBegin) cmd->phase_ = Phase::Begin;
+  if (phase == xplm_CommandContinue) cmd->phase_ = Phase::Continue;
+  if (phase == xplm_CommandEnd) cmd->phase_ = Phase::End;
+  auto outcome = cmd->callback(ref, cmd->phase_);
+  return outcome == Outcome::Halt ? 1 : 0;
+}
