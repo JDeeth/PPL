@@ -3,20 +3,14 @@ TEMPLATE = lib
 # Static library without any Qt functionality
 QT -= gui core
 
-CONFIG += static console c++14 warn_on subproject
+CONFIG += static console c++14 warn_on
 CONFIG -= thread qt
 
 VERSION = 2.0.0
 
 INCLUDEPATH += include/simpleini
-
-subproject {
-    INCLUDEPATH += ../../SDK/CHeaders/XPLM
-    INCLUDEPATH += ../../SDK/CHeaders/Widgets
-} else {
-    INCLUDEPATH += ../SDK/CHeaders/XPLM
-    INCLUDEPATH += ../SDK/CHeaders/Widgets
-}
+INCLUDEPATH += ../xplane_sdk/sdk/CHeaders/XPLM
+INCLUDEPATH += ../xplane_sdk/sdk/CHeaders/Widgets
 
 # Gonna not define XPLM300 and see what breaks...
 DEFINES += XPLM200 XPLM210 
