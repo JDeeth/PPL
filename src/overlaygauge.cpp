@@ -30,7 +30,6 @@
 #include <cstdio>
 #include <cstring>
 #include "XPLMGraphics.h"
-#include "XPLMProcessing.h"
 #include "XPLMUtilities.h"
 
 using namespace PPL;
@@ -50,28 +49,10 @@ OverlayGauge::OverlayGauge(int left2d, int top2d, int width2d, int height2d, int
     frame_off_y_(frameOffY),
     visible_2d_(is_visible2d),
     visible_3d_(is_visible3d),
-    always_draw_3d_(false),
     scale_3d_(scale_3d),
     width_view_3d_(width3d),
     height_view_3d_(height3d),
-    panel_render_pass_(panel_render_pass),
-    screen_width_("sim/graphics/view/window_width"),
-    screen_height_("sim/graphics/view/window_height"),
-    view_type_("sim/graphics/view/view_type"),
-    panel_render_type_("sim/graphics/view/panel_render_type"),
-    #if defined (XPLM300)
-    vr_enabled_("sim/graphics/VR/enabled"),
-    #else
-    vr_enabled_(0),
-    #endif
-    instrument_brightness_("sim/cockpit2/switches/instrument_brightness_ratio"),
-    lit_level_r_("sim/graphics/misc/cockpit_light_level_r"),
-    lit_level_g_("sim/graphics/misc/cockpit_light_level_g"),
-    lit_level_b_("sim/graphics/misc/cockpit_light_level_b"),
-    window_is_dragging_(false),
-    window_has_keyboard_focus_(false),
-    copy_left_3d_(-1),
-    copy_top_3d_(-1)
+    panel_render_pass_(panel_render_pass)
 {
     // sim/graphics/view/panel_render_type
     // debug/texture_browser
@@ -79,9 +60,8 @@ OverlayGauge::OverlayGauge(int left2d, int top2d, int width2d, int height2d, int
     // 0 = Attr_cockpit
     // 1 = attr_cockpit_Region albedo
     // 2 = attr_cockpit_Region emissive
-
-    XPLMRegisterDrawCallback(draw3dCallback, xplm_Phase_Gauges, 0, this);
-    XPLMRegisterFlightLoopCallback(frameCallback, -1, this);
+    XPLMRegisterDrawCallback(draw3dCallback_, xplm_Phase_Gauges, 0, this);
+    XPLMRegisterFlightLoopCallback(frameCallback_, -1, this);
 
     XPLMCreateWindow_t win;
     memset(&win, 0, sizeof(win));
@@ -92,11 +72,11 @@ OverlayGauge::OverlayGauge(int left2d, int top2d, int width2d, int height2d, int
     win.right = left2d+width2d;
     win.bottom = top2d-height2d;
     win.visible = is_visible2d;
-    win.drawWindowFunc = draw2dWindowCallback;
-    win.handleKeyFunc = handle2dKeyCallback;
-    win.handleMouseClickFunc = handle2dClickCallback;
-    win.handleCursorFunc = handle2dCursorCallback;
-    win.handleMouseWheelFunc = handle2dWheelCallback;
+    win.drawWindowFunc = draw2dWindowCallback_;
+    win.handleKeyFunc = handle2dKeyCallback_;
+    win.handleMouseClickFunc = handle2dClickCallback_;
+    win.handleCursorFunc = handle2dCursorCallback_;
+    win.handleMouseWheelFunc = handle2dWheelCallback_;
     win.refcon = this;
 #if defined(XPLM300)
     win.decorateAsFloatingWindow = xplm_WindowDecorationSelfDecoratedResizable;
@@ -109,7 +89,7 @@ OverlayGauge::OverlayGauge(int left2d, int top2d, int width2d, int height2d, int
     generateTex((int*)(&gauge_texture_), 1);
     bindTex(gauge_texture_, 0);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width_3d_, height_3d_, 0,
-                 GL_RGBA, GL_UNSIGNED_BYTE, 0);
+                 GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -150,9 +130,9 @@ OverlayGauge::OverlayGauge(int left2d, int top2d, int width2d, int height2d, int
 
 OverlayGauge::~OverlayGauge()
 {
-    XPLMUnregisterDrawCallback(draw3dCallback, xplm_Phase_Gauges, 0, this);
+    XPLMUnregisterDrawCallback(draw3dCallback_, xplm_Phase_Gauges, 0, this);
     XPLMDestroyWindow(window2d_id_);
-    XPLMUnregisterFlightLoopCallback(frameCallback, this);
+    XPLMUnregisterFlightLoopCallback(frameCallback_, this);
 }
 
 void OverlayGauge::set3d(int left3d, int top3d, int width3d, int height3d, int, bool always_draw_3d)
@@ -185,7 +165,7 @@ void OverlayGauge::setVisible(bool b)
 {
     if (!b)
     {
-        XPLMTakeKeyboardFocus(0);
+        XPLMTakeKeyboardFocus(nullptr);
         window_has_keyboard_focus_ = false;
     }
     visible_2d_ = b;
@@ -219,8 +199,8 @@ void OverlayGauge::frame()
         vr_enabled_.save();
     }
 #else
-    if (visible_2d_)
-      XPLMSetWindowGeometry(window2d_id_, left_2d_, top_2d_, left_2d_+width_2d_, top_2d_-height_2d_);
+//    if (visible_2d_)
+//      XPLMSetWindowGeometry(window2d_id_, left_2d_, top_2d_, left_2d_+width_2d_, top_2d_-height_2d_);
 #endif
 }
 
@@ -262,7 +242,7 @@ void OverlayGauge::toggleKeyboardFocus()
 {
     if (window_has_keyboard_focus_)
     {
-        XPLMTakeKeyboardFocus(0);
+        XPLMTakeKeyboardFocus(nullptr);
         window_has_keyboard_focus_ = false;
     }
     else
@@ -332,7 +312,7 @@ void OverlayGauge::draw2dWindowCallback(XPLMWindowID)
         {
             static float color[] = { 1.f, 0.5f, 0.f};
             static char str[] = "K";
-            XPLMDrawString(color, left + 20, top - 25, str, 0, xplmFont_Proportional);
+            XPLMDrawString(color, left + 20, top - 25, str, nullptr, xplmFont_Proportional);
         }
     }
 }
@@ -425,7 +405,7 @@ int OverlayGauge::handle2dClickCallback(XPLMWindowID window_id, int x, int y, XP
             {
             if (coordInRect(x, y, Left, Top, Left+40, Top-40))
             {
-                XPLMTakeKeyboardFocus(0);
+                XPLMTakeKeyboardFocus(nullptr);
                 window_has_keyboard_focus_ = false;
                 setVisible(false);
             }
@@ -550,55 +530,6 @@ bool OverlayGauge::wantVFlip() const
 int OverlayGauge::handleMouseWheel(int, int, int, int)
 {
     return 1;
-}
-
-int OverlayGauge::draw3dCallback(XPLMDrawingPhase phase, int is_before, void* refcon)
-{
-    OverlayGauge* window = static_cast<OverlayGauge*>(refcon);
-    return window->draw3dCallback(phase, is_before);
-}
-
-void OverlayGauge::draw2dWindowCallback(XPLMWindowID window_id, void* refcon)
-{
-    OverlayGauge* window = static_cast<OverlayGauge*>(refcon);
-    window->draw2dWindowCallback(window_id);
-}
-
-void OverlayGauge::handle2dKeyCallback(XPLMWindowID window_id, char key, XPLMKeyFlags flags, char virtual_key, void* refcon, int losing_focus)
-{
-    OverlayGauge* window = static_cast<OverlayGauge*>(refcon);
-    window->handle2dKeyCallback(window_id, key, flags, static_cast<unsigned char>(virtual_key), losing_focus);
-}
-
-int OverlayGauge::handle2dClickCallback(XPLMWindowID window_id, int x, int y, XPLMMouseStatus mouse, void* refcon)
-{
-    OverlayGauge* window = static_cast<OverlayGauge*>(refcon);
-    return window->handle2dClickCallback(window_id, x, y, mouse);
-}
-
-int OverlayGauge::handle2dRightClickCallback(XPLMWindowID window_id, int x, int y, XPLMMouseStatus mouse, void* refcon)
-{
-    OverlayGauge* window = static_cast<OverlayGauge*>(refcon);
-    return window->handle2dRightClickCallback(window_id, x, y, mouse);
-}
-
-XPLMCursorStatus OverlayGauge::handle2dCursorCallback(XPLMWindowID window_id, int x, int y, void* refcon)
-{
-    OverlayGauge* window = static_cast<OverlayGauge*>(refcon);
-    return window->handle2dCursorCallback(window_id, x, y);
-}
-
-int OverlayGauge::handle2dWheelCallback(XPLMWindowID window_id, int x, int y, int wheel, int clicks, void *refcon)
-{
-    OverlayGauge* window = static_cast<OverlayGauge*>(refcon);
-    return window->handle2dWheelCallback(window_id, x, y, wheel, clicks);
-}
-
-float OverlayGauge::frameCallback(float, float, int, void* refcon)
-{
-    OverlayGauge* window = static_cast<OverlayGauge*>(refcon);
-    window->frame();
-    return -1;
 }
 
 void OverlayGauge::setDrawState(int inEnableFog, int inNumberTexUnits, int inEnableLighting, int inEnableAlphaTesting, int inEnableAlphaBlending, int inEnableDepthTesting, int inEnableDepthWriting)

@@ -29,6 +29,7 @@
 #define OVERLAYWINDOW_H
 
 #include "XPLMDisplay.h"
+#include "XPLMProcessing.h"
 #include "dataref.h"
 
 #if APL == 1
@@ -50,7 +51,7 @@ class OverlayGauge
 {
 public:
     OverlayGauge(int left2d, int top2d, int width2d, int height2d, int left3d, int top3d, int width3d, int height3d,
-                 int frameOffX, int frameOffY, int, bool, bool is_visible3d = true,
+                 int frameOffX = 0, int frameOffY = 0, int = 0, bool = false, bool is_visible3d = true,
                  bool is_visible2d = false, bool = false, bool = false, float scale_3d = 1.0f,
                  bool = false, int panel_render_pass = 2);
     virtual ~OverlayGauge();
@@ -73,7 +74,6 @@ public:
     XPLMCursorStatus handle2dCursorCallback(XPLMWindowID window_id, int x, int y);
     int handle2dWheelCallback(XPLMWindowID inWindowID, int x, int y, int wheel, int clicks);
 
-
     virtual bool wantRedraw();
     virtual void draw(int left, int top, int right, int bottom) = 0;
     virtual int handleNonDragClick(int x_rel, int y_rel, bool right) = 0;
@@ -88,17 +88,6 @@ public:
     virtual int handleMouseWheel(int x, int y, int wheel, int clicks);
     virtual float instrumentBrightness() const;
     virtual bool wantVRifAvailable() const;
-
-    static int draw3dCallback(XPLMDrawingPhase phase, int is_before, void* refcon);
-
-    static void draw2dWindowCallback(XPLMWindowID window_id, void* refcon);
-    static void handle2dKeyCallback(XPLMWindowID window_id, char key, XPLMKeyFlags flags, char virtual_key, void* refcon, int losing_focus);
-    static int handle2dClickCallback(XPLMWindowID window_id, int x, int y, XPLMMouseStatus mouse, void* refcon);
-    static int handle2dRightClickCallback(XPLMWindowID window_id, int x, int y, XPLMMouseStatus mouse, void* refcon);
-    static XPLMCursorStatus handle2dCursorCallback(XPLMWindowID window_id, int x, int y, void* refcon);
-    static int handle2dWheelCallback(XPLMWindowID inWindowID, int x, int y, int wheel, int clicks, void* refcon);
-
-    static float frameCallback(float, float, int, void* refcon);
 
     void setDrawState(int inEnableFog,
                       int inNumberTexUnits,
@@ -132,29 +121,71 @@ private:
     int frame_off_y_;
     bool visible_2d_;
     bool visible_3d_;
-    bool always_draw_3d_;
+    bool always_draw_3d_{false};
     float scale_3d_;
     int width_view_3d_;
     int height_view_3d_;
     int panel_render_pass_;
-    DataRef<int> screen_width_, screen_height_;
-    DataRef<int> view_type_, panel_render_type_;
+    DataRef<int> screen_width_{"sim/graphics/view/window_width"};
+    DataRef<int> screen_height_{"sim/graphics/view/window_height"};
+    DataRef<int> view_type_{"sim/graphics/view/view_type"};
+    DataRef<int> panel_render_type_{"sim/graphics/view/panel_render_type"};
 #if defined(XPLM300)
-    DataRef<int> vr_enabled_;
+    DataRef<int> vr_enabled_{"sim/graphics/VR/enabled"};
 #else
-    int vr_enabled_;
+    int vr_enabled_{0};
 #endif
-    DataRef<std::vector<float> > instrument_brightness_;
-    DataRef<float> lit_level_r_, lit_level_g_, lit_level_b_;
-    bool window_is_dragging_;
-    bool window_has_keyboard_focus_;
+    DataRef<std::vector<float> > instrument_brightness_{"sim/cockpit2/switches/instrument_brightness_ratio"};
+    DataRef<float> lit_level_r_{"sim/graphics/misc/cockpit_light_level_r"};
+    DataRef<float> lit_level_g_{"sim/graphics/misc/cockpit_light_level_g"};
+    DataRef<float> lit_level_b_{"sim/graphics/misc/cockpit_light_level_b"};
+    bool window_is_dragging_{false};
+    bool window_has_keyboard_focus_{false};
     GLuint gauge_texture_;
     GLuint rbo_;
     GLuint fbo_;
-    int copy_left_3d_;
-    int copy_top_3d_;
+    int copy_left_3d_{-1};
+    int copy_top_3d_{-1};
     int dX = 0;
     int dY = 0;
+
+    // callback function pointers
+    XPLMDrawCallback_f draw3dCallback_ {
+      [](XPLMDrawingPhase phase, int is_before, void* refcon) {
+        return static_cast<OverlayGauge*>(refcon)->draw3dCallback(phase, is_before);
+      }};
+    XPLMFlightLoop_f frameCallback_ {
+      [](float, float, int, void* refcon) {
+        static_cast<OverlayGauge*>(refcon)->frame();
+        return -1.f;
+      }};
+    XPLMDrawWindow_f draw2dWindowCallback_ {
+      [](XPLMWindowID window_id, void* refcon) {
+          static_cast<OverlayGauge*>(refcon)->draw2dWindowCallback(window_id);
+      }};
+    XPLMHandleKey_f handle2dKeyCallback_ {
+      [](XPLMWindowID window_id, char key, XPLMKeyFlags flags, char virtual_key, void* refcon, int losing_focus) {
+          static_cast<OverlayGauge*>(refcon)->handle2dKeyCallback(
+              window_id, key, flags, static_cast<unsigned char>(virtual_key), losing_focus);
+      }};
+    XPLMHandleMouseClick_f handle2dClickCallback_ {
+      [](XPLMWindowID window_id, int x, int y, XPLMMouseStatus mouse, void* refcon) {
+          return static_cast<OverlayGauge*>(refcon)->handle2dClickCallback(window_id, x, y, mouse);
+      }};
+    XPLMHandleCursor_f handle2dCursorCallback_ {
+      [](XPLMWindowID window_id, int x, int y, void* refcon) {
+          return static_cast<OverlayGauge*>(refcon)->handle2dCursorCallback(window_id, x, y);
+      }};
+    XPLMHandleMouseWheel_f handle2dWheelCallback_ {
+      [](XPLMWindowID window_id, int x, int y, int wheel, int clicks, void *refcon) {
+          return static_cast<OverlayGauge*>(refcon)->handle2dWheelCallback(window_id, x, y, wheel, clicks);
+      }};
+#if defined(XPLM300)
+    XPLMHandleMouseClick_f handle2dRightClickCallback_ {
+      [](XPLMWindowID window_id, int x, int y, XPLMMouseStatus mouse, void* refcon) {
+          return static_cast<OverlayGauge*>(refcon)->handle2dRightClickCallback(window_id, x, y, mouse);
+      }};
+#endif
 };
 
 }
