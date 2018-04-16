@@ -50,9 +50,9 @@ class OverlayGauge
 {
 public:
     OverlayGauge(int left2d, int top2d, int width2d, int height2d, int left3d, int top3d, int width3d, int height3d,
-                 int frameOffX, int frameOffY, int textureId3d, bool allow_keyboard = true, bool is_visible3d = true,
-                 bool is_visible2d = false, bool always_draw_3d = false, bool allow_3d_click = false, float scale_3d = 1.0f,
-                 bool double_size = false, int panel_render_pass = 2);
+                 int frameOffX, int frameOffY, int, bool, bool is_visible3d = true,
+                 bool is_visible2d = false, bool = false, bool = false, float scale_3d = 1.0f,
+                 bool = false, int panel_render_pass = 2);
     virtual ~OverlayGauge();
     OverlayGauge(const OverlayGauge&) = delete;
     OverlayGauge& operator=(const OverlayGauge&) = delete;
@@ -138,7 +138,12 @@ private:
     int height_view_3d_;
     int panel_render_pass_;
     DataRef<int> screen_width_, screen_height_;
-    DataRef<int> view_type_, panel_render_type_, vr_enabled_;
+    DataRef<int> view_type_, panel_render_type_;
+#if defined(XPLM300)
+    DataRef<int> vr_enabled_;
+#else
+    int vr_enabled_;
+#endif
     DataRef<std::vector<float> > instrument_brightness_;
     DataRef<float> lit_level_r_, lit_level_g_, lit_level_b_;
     bool window_is_dragging_;

@@ -59,7 +59,11 @@ OverlayGauge::OverlayGauge(int left2d, int top2d, int width2d, int height2d, int
     screen_height_("sim/graphics/view/window_height"),
     view_type_("sim/graphics/view/view_type"),
     panel_render_type_("sim/graphics/view/panel_render_type"),
+    #if defined (XPLM300)
     vr_enabled_("sim/graphics/VR/enabled"),
+    #else
+    vr_enabled_(0),
+    #endif
     instrument_brightness_("sim/cockpit2/switches/instrument_brightness_ratio"),
     lit_level_r_("sim/graphics/misc/cockpit_light_level_r"),
     lit_level_g_("sim/graphics/misc/cockpit_light_level_g"),
@@ -94,9 +98,11 @@ OverlayGauge::OverlayGauge(int left2d, int top2d, int width2d, int height2d, int
     win.handleCursorFunc = handle2dCursorCallback;
     win.handleMouseWheelFunc = handle2dWheelCallback;
     win.refcon = this;
+#if defined(XPLM300)
     win.decorateAsFloatingWindow = xplm_WindowDecorationSelfDecoratedResizable;
     win.layer = xplm_WindowLayerFloatingWindows;
     win.handleRightClickFunc = handle2dRightClickCallback;
+#endif
     window2d_id_ = XPLMCreateWindowEx(&win);
     XPLMSetWindowIsVisible(window2d_id_, visible_2d_);
 
@@ -184,11 +190,13 @@ void OverlayGauge::setVisible(bool b)
     }
     visible_2d_ = b;
     XPLMSetWindowIsVisible(window2d_id_, visible_2d_);
+#if defined(XPLM300)
     if (b && wantVRifAvailable())
     {
         XPLMSetWindowPositioningMode(window2d_id_, (vr_enabled_==1) ? xplm_WindowVR : xplm_WindowPositionFree, -1);
         vr_enabled_.save();
     }
+#endif
 }
 
 bool OverlayGauge::isVisible() const
@@ -201,6 +209,7 @@ void OverlayGauge::frame()
     visible_2d_ = XPLMGetWindowIsVisible(window2d_id_);
     if (!wantVRifAvailable())
         return;
+#if defined(XPLM300)
     if (visible_2d_)
     if (vr_enabled_.hasChanged())
     {
@@ -209,6 +218,10 @@ void OverlayGauge::frame()
             XPLMSetWindowGeometry(window2d_id_, left_2d_, top_2d_, left_2d_+width_2d_, top_2d_-height_2d_);
         vr_enabled_.save();
     }
+#else
+    if (visible_2d_)
+      XPLMSetWindowGeometry(window2d_id_, left_2d_, top_2d_, left_2d_+width_2d_, top_2d_-height_2d_);
+#endif
 }
 
 void OverlayGauge::drawTexture(int tex_id, int left, int top, int right, int bottom, bool vflip)
@@ -398,7 +411,11 @@ int OverlayGauge::handle2dClickCallback(XPLMWindowID window_id, int x, int y, XP
     XPLMGetWindowGeometry(window_id, &Left, &Top, &Right, &Bottom);
     int x_rel = x - Left;
     int y_rel = y - Bottom;
+#if defined(XPLM300)
     if (!XPLMWindowIsPoppedOut(window_id))
+#else
+    if (true)
+#endif
     {
         switch(mouse)
         {
@@ -414,7 +431,9 @@ int OverlayGauge::handle2dClickCallback(XPLMWindowID window_id, int x, int y, XP
             }
             else if (coordInRect(x, y, Right-40, Top, Right, Top-40))
             {
+#if defined(XPLM300)
                 XPLMSetWindowPositioningMode(window2d_id_, xplm_WindowPopOut, -1);
+#endif
             }
             else if (!handleNonDragClick(x_rel, y_rel, false))
             {
@@ -446,6 +465,7 @@ int OverlayGauge::handle2dClickCallback(XPLMWindowID window_id, int x, int y, XP
             break;
         }
     }
+#if defined(XPLM300)
     else
     {
         switch(mouse)
@@ -466,6 +486,7 @@ int OverlayGauge::handle2dClickCallback(XPLMWindowID window_id, int x, int y, XP
             break;
         }
     }
+#endif
     return 1;
 }
 
