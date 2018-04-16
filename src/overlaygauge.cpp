@@ -101,31 +101,31 @@ OverlayGauge::OverlayGauge(int left2d, int top2d, int width2d, int height2d, int
     glGetIntegerv(GL_FRAMEBUFFER_BINDING, &xp_fbo);
 
     // create a renderbuffer object to store depth info
-    glGenRenderbuffersEXT(1, &rbo_);
-    glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, rbo_);
-    glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_STENCIL,
+    glGenRenderbuffers(1, &rbo_);
+    glBindRenderbuffer(GL_RENDERBUFFER, rbo_);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_STENCIL,
                              width_3d_, height_3d_);
-    glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, xp_rbo);
+    glBindRenderbuffer(GL_RENDERBUFFER, xp_rbo);
 
     // create a framebuffer object
-    glGenFramebuffersEXT(1, &fbo_);
-    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fbo_);
+    glGenFramebuffers(1, &fbo_);
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo_);
 
     // attach the texture to FBO color attachment point
-    glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT,
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
                               GL_TEXTURE_2D, gauge_texture_, 0);
 
     // attach the renderbuffer to depth attachment point
-    glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_STENCIL_ATTACHMENT,
-                                 GL_RENDERBUFFER_EXT, rbo_);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT,
+                                 GL_RENDERBUFFER, rbo_);
 
     // check FBO status
-    GLenum status_ = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
-    if(status_ != GL_FRAMEBUFFER_COMPLETE_EXT)
+    GLenum status_ = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+    if(status_ != GL_FRAMEBUFFER_COMPLETE)
         throw std::runtime_error("No possible FBO, sorry");
 
     // switch back to window-system-provided framebuffer
-    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, xp_fbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, xp_fbo);
 }
 
 OverlayGauge::~OverlayGauge()
@@ -199,8 +199,8 @@ void OverlayGauge::frame()
         vr_enabled_.save();
     }
 #else
-//    if (visible_2d_)
-//      XPLMSetWindowGeometry(window2d_id_, left_2d_, top_2d_, left_2d_+width_2d_, top_2d_-height_2d_);
+    if (visible_2d_)
+      XPLMSetWindowGeometry(window2d_id_, left_2d_, top_2d_, left_2d_+width_2d_, top_2d_-height_2d_);
 #endif
 }
 
@@ -324,7 +324,7 @@ void OverlayGauge::updateFBO()
         GLint xp_fbo;
         glGetIntegerv(GL_FRAMEBUFFER_BINDING, &xp_fbo);
         // set rendering destination to FBO
-        glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fbo_);
+        glBindFramebuffer(GL_FRAMEBUFFER, fbo_);
         glPushAttrib(GL_VIEWPORT_BIT);
         glViewport(0,0,width_3d_, height_3d_);
         glMatrixMode (GL_PROJECTION);
@@ -351,7 +351,7 @@ void OverlayGauge::updateFBO()
         glPopMatrix();
         glMatrixMode(GL_MODELVIEW);
         glPopAttrib();
-        glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, xp_fbo);
+        glBindFramebuffer(GL_FRAMEBUFFER, xp_fbo);
     }
 }
 
@@ -405,8 +405,6 @@ int OverlayGauge::handle2dClickCallback(XPLMWindowID window_id, int x, int y, XP
             {
             if (coordInRect(x, y, Left, Top, Left+40, Top-40))
             {
-                XPLMTakeKeyboardFocus(nullptr);
-                window_has_keyboard_focus_ = false;
                 setVisible(false);
             }
             else if (coordInRect(x, y, Right-40, Top, Right, Top-40))
