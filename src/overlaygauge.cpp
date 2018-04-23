@@ -186,6 +186,7 @@ bool OverlayGauge::isVisible() const
 
 void OverlayGauge::frame()
 {
+    update();
     visible_2d_ = XPLMGetWindowIsVisible(window2d_id_);
     if (!wantVRifAvailable())
         return;
@@ -260,6 +261,10 @@ float OverlayGauge::instrumentBrightness() const
 bool OverlayGauge::wantVRifAvailable() const
 {
     return true;
+}
+
+void OverlayGauge::update()
+{
 }
 
 void OverlayGauge::draw2dWindowCallback(XPLMWindowID)
@@ -403,26 +408,28 @@ int OverlayGauge::handle2dClickCallback(XPLMWindowID window_id, int x, int y, XP
             /// Test for the mouse in the window
             if (vr_enabled_ == 0)
             {
-            if (coordInRect(x, y, Left, Top, Left+40, Top-40))
-            {
-                setVisible(false);
-            }
-            else if (coordInRect(x, y, Right-40, Top, Right, Top-40))
-            {
+                if (coordInRect(x, y, Left, Top, Left+40, Top-40))
+                {
+                    XPLMTakeKeyboardFocus(nullptr);
+                    window_has_keyboard_focus_ = false;
+                    setVisible(false);
+                }
+                else if (coordInRect(x, y, Right-40, Top, Right, Top-40))
+                {
 #if defined(XPLM300)
-                XPLMSetWindowPositioningMode(window2d_id_, xplm_WindowPopOut, -1);
+                    XPLMSetWindowPositioningMode(window2d_id_, xplm_WindowPopOut, -1);
 #endif
-            }
-            else if (!handleNonDragClick(x_rel, y_rel, false))
-            {
-                dX = x - Left;
-                dY = y - Top;
-                window_is_dragging_ = true;
-            }
+                }
+                else if (!handleNonDragClick(x_rel, y_rel, false))
+                {
+                    dX = x - Left;
+                    dY = y - Top;
+                    window_is_dragging_ = true;
+                }
             }
             else
             {
-                return handleNonDragClick(x_rel, y_rel, false);
+                handleNonDragClick(x_rel, y_rel, false);
             }
             break;
         case xplm_MouseDrag:
