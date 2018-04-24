@@ -28,6 +28,8 @@
 #ifndef PROCESSOR_H
 #define PROCESSOR_H
 
+// clang-format off
+
 namespace PPL {
 
 class Processor
@@ -43,4 +45,5 @@ private:
 
 }
 
+// clang-format on
 #endif // PROCESSOR_H

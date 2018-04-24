@@ -28,6 +28,8 @@
 #ifndef VERTEXBUFFER_HPP
 #define VERTEXBUFFER_HPP
 
+// clang-format off
+
 #include <cstddef>
 
 #if APL == 1
@@ -147,4 +149,5 @@ private:
 
 }
 
+// clang-format on
 #endif // VERTEXBUFFER_HPP

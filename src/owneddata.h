@@ -28,6 +28,8 @@
 #ifndef OWNEDDATA_H
 #define OWNEDDATA_H
 
+// clang-format off
+
 #include <string>
 #include <vector>
 #include <stdexcept>
@@ -240,4 +242,5 @@ void OwnedData<std::vector<float> >::registerReadWrite();
 
 }
 
+// clang-format on
 #endif // OWNEDDATA_H

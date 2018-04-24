@@ -28,6 +28,8 @@
 #ifndef ALSOUNDBUFFER_H
 #define ALSOUNDBUFFER_H
 
+// clang-format off
+
 #include <string>
 #include <stdexcept>
 
@@ -141,5 +143,5 @@ ALuint LoadWav(const std::string& fileName);
 
 }
 
-
+// clang-format on
 #endif // ALSOUNDBUFFER_H

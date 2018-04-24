@@ -23,6 +23,8 @@
 #ifndef _Fonts_h_
 #define _Fonts_h_
 
+// clang-format off
+
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
@@ -327,4 +329,5 @@ private:
 
 }
 
+// clang-format on
 #endif

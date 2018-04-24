@@ -27,6 +27,8 @@
 
 #include "alcontextchanger.h"
 
+// clang-format off
+
 using namespace PPL;
 
 ALContextChanger::ALContextChanger(ALCcontext* own_context):

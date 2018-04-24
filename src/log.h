@@ -28,6 +28,8 @@
 #ifndef LOG_H
 #define LOG_H
 
+// clang-format off
+
 #include <string>
 #include <ctime>
 #include <sstream>
@@ -140,4 +142,5 @@ private:
 };
 }
 
+// clang-format on
 #endif // LOG_H

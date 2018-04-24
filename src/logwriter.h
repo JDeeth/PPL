@@ -28,6 +28,8 @@
 #ifndef LOGWRITER_H
 #define LOGWRITER_H
 
+// clang-format off
+
 #include <fstream>
 #include "log.h"
 
@@ -71,4 +73,5 @@ private:
 
 }
 
+// clang-format on
 #endif // LOGWRITER_H

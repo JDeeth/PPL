@@ -28,6 +28,8 @@
 #ifndef ACTION_H
 #define ACTION_H
 
+// clang-format off
+
 #include <string>
 
 namespace PPL {
@@ -41,4 +43,5 @@ public:
 
 }
 
+// clang-format on
 #endif // ACTION_H

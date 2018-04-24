@@ -28,6 +28,8 @@
 #ifndef ONSCREENDISPLAY_H
 #define ONSCREENDISPLAY_H
 
+// clang-format off
+
 #include "XPWidgetDefs.h"
 #include "XPLMDisplay.h"
 #include "dataref.h"
@@ -58,4 +60,5 @@ private:
 
 }
 
+// clang-format on
 #endif // ONSCREENDISPLAY_H

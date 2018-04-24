@@ -28,6 +28,8 @@
 #ifndef MESSAGEWINDOW_H
 #define MESSAGEWINDOW_H
 
+// clang-format off
+
 #include <string>
 #include <list>
 #include <vector>
@@ -182,4 +184,5 @@ private:
 
 }
 
+// clang-format on
 #endif // MESSAGEWINDOW_H

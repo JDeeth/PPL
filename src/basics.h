@@ -28,6 +28,8 @@
 #ifndef BASICS_H
 #define BASICS_H
 
+// clang-format off
+
 #include <algorithm>
 #include <cmath>
 
@@ -54,4 +56,5 @@ inline double mods(double y, double x)
 
 }
 
+// clang-format on
 #endif // BASICS_H

@@ -28,6 +28,8 @@
 #ifndef DATAREF_H
 #define DATAREF_H
 
+// clang-format off
+
 #include <string>
 #include <vector>
 #include <stdexcept>
@@ -588,4 +590,5 @@ void DataRef<std::string>::reserve();
 
 }
 
+// clang-format on
 #endif // DATAREF_H

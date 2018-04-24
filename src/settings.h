@@ -28,6 +28,8 @@
 #ifndef SETTINGS_H
 #define SETTINGS_H
 
+// clang-format off
+
 #include <string>
 
 #define SI_CONVERT_GENERIC
@@ -91,4 +93,5 @@ private:
 };
 
 }
+// clang-format on
 #endif // SETTINGS_H

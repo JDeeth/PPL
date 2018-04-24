@@ -21,6 +21,8 @@
  *
  */
 
+// clang-format off
+
 #include "fontmgr.h"
 #include <math.h>
 #include <cassert>

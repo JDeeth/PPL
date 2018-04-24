@@ -28,6 +28,8 @@
 #ifndef MENUITEM_H
 #define MENUITEM_H
 
+// clang-format off
+
 #include <string>
 #include <vector>
 
@@ -57,5 +59,5 @@ private:
 
 }
 
-
+// clang-format on
 #endif // MENUITEM_H

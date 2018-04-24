@@ -25,6 +25,8 @@
 // of the authors and should not be interpreted as representing official policies,
 // either expressed or implied, of the FreeBSD Project.
 
+// clang-format off
+
 #include "settings.h"
 #include "log.h"
 
@@ -107,3 +109,4 @@ void Settings::setLong(const std::string& section, const std::string& key, long 
 {
     SetLongValue(section.c_str(), key.c_str(), value);
 }
+

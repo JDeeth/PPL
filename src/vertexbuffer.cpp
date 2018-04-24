@@ -25,6 +25,8 @@
 // of the authors and should not be interpreted as representing official policies,
 // either expressed or implied, of the FreeBSD Project.
 
+// clang-format off
+
 #include "vertexbuffer.hpp"
 
 using namespace PPL;
@@ -154,5 +156,4 @@ void VertexBuffer::endDraw()
         glDisableClientState(GL_NORMAL_ARRAY);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
-
 

@@ -28,6 +28,8 @@
 #ifndef logichandler_h
 #define logichandler_h
 
+// clang-format off
+
 #include <string>
 #include <vector>
 
@@ -126,4 +128,5 @@ private:
 
 }
 
+// clang-format on
 #endif

@@ -28,6 +28,8 @@
 #ifndef SMOOTHED_H
 #define SMOOTHED_H
 
+// clang-format off
+
 #include <cstring>
 
 namespace PPL {
@@ -65,4 +67,5 @@ private:
     T m_history[n];
 };
 }
+// clang-format on
 #endif // SMOOTHED_H

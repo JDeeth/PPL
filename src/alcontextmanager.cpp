@@ -28,6 +28,8 @@
 #include <memory>
 #include <sstream>
 
+// clang-format off
+
 #include "XPLMUtilities.h"
 #include "alcontextchanger.h"
 #include "alcontextmanager.h"

@@ -2,37 +2,14 @@ The **Plugin Patterns Library** provides classes for common tasks with the XPLM 
 
 Questions, support and pull request are handled through http://forums.x-plane.org/index.php?showtopic=49958
 
+Usage examples can be found [here](https://github.com/JDeeth/PPL-Demo).
+
 ---
 
 Library contents
 ================
 
 Grouped by category
-
-
-Utility
--------
-
-**namespaces.h**
-Prevents name collision on 32-bit systems
-
-**pluginpath.h**
-Platform-independent paths to various folders
-
-**logwriter.h**
-Writes log messages to file
-
-**log.h**
-Defines log messages
-
-**settings.h**
-For loading and saving settings in a .ini file
-
-**basics.h**
-Maths utility functions
-
-**smoothed.h**
-Superficial smoothing - returns average of the last n assigned values
 
 
 Sim interface
@@ -44,11 +21,11 @@ Connects with existing datarefs
 **owneddata.h**
 Creates new datarefs
 
-**commandbase.h**
-Abstract base for commands
+**command.h**
+Observes and/or replaces existing commands or creates new ones
 
 **processor.h**
-Abstract base for flight-loop callbacks
+Simple wrapper for flight loop callback (i.e. simple 'update' functions
 
 **logichandler.h**
 Abstract class for XP > FLCB > custom dataref processing
@@ -86,17 +63,68 @@ Manages the playing of sound buffers
 Changes AL context using RAII
 
 
-3D
---
+OpenGL
+------
 
 **overlaygauge.h**
-??? Draws gauges on the 3D panel texture?
+Creates context for you to draw on the 3D panel and/or a 2D popup/VR window.
+This class contains some XP11-only features which have been crudely wrapped in
+#ifdef statements for XP10 compatibility.
 
 **texture.h**
-OpenGL wrapper for .bmp texture data?
+Loads .bmp/.tga image for OpenGL drawing
 
 **fontmgr.h**
-Loads and maps fonts for drawing onto textures
+Loads .ttf/.otf font file for OpenGL drawing
 
 **vertexbuffer.hpp**
-For storing objects in VRAM
+Wraps OpenGL Vertex Buffer Objects
+
+
+Utility
+-------
+
+**pluginpath.h**
+Platform-independent paths to various folders
+
+**logwriter.h**
+Writes log message
+
+**log.h**
+Set up logging
+
+**settings.h**
+Load and save settings in a .ini file
+
+**basics.h**
+Maths utility functions
+
+**smoothed.h**
+Superficial smoothing - returns average of the last n assigned values
+
+**namespaces.h**
+Prevents name collision on 32-bit systems
+
+---
+
+Why this fork?
+--------------
+
+Key differences to Philipp's PPL are:
+
+ - OverlayGauge reworked a bit, replacing static functions with lambdas for
+   callbacks, and making XP11-only elements optional so it works with XP10.
+ - OwnedData allows you to specify read and write callback functions, which
+   are stored as std::function objects rather than function pointers.
+ - Add Command class (also gratuitously overusing std::function)
+ - Minor fixes prompted by compiler warnings, adding static_cast and nullptr
+ - Configured to use clang-format on new files only
+
+
+ Using this library
+ ------------------
+
+ Include it in a plugin project as a `git submodule`. Using Qt Creator/qmake,
+ you can set up a `subdirs` project containing your plugin, PPL, and any other
+ libraries you'd like to use. This is demonstrated with [PPL-Demo]
+ (https://github.com/JDeeth/PPL-Demo).

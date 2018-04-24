@@ -28,6 +28,8 @@
 #ifndef ALCONTEXTCHANGER_H
 #define ALCONTEXTCHANGER_H
 
+// clang-format off
+
 #if APL == 1
 #include <OpenAL/al.h>
 #include <OpenAL/alc.h>
@@ -75,4 +77,5 @@ private:
 
 }
 
+// clang-format on
 #endif // ALCONTEXTCHANGER_H

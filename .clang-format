@@ -1,1 +1,6 @@
-DisableFormat:	true
+BasedOnStyle: Chromium
+AccessModifierOffset:	-2
+AllowAllParametersOfDeclarationOnNextLine:  true
+BinPackArguments:	false
+BinPackParameters:	false
+

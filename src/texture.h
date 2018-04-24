@@ -28,6 +28,8 @@
 #ifndef TEXTURE_H
 #define TEXTURE_H
 
+// clang-format off
+
 #include <string>
 #include <vector>
 #include "stdint.h"
@@ -93,4 +95,5 @@ private:
 
 }
 
+// clang-format on
 #endif // TEXTURE_H

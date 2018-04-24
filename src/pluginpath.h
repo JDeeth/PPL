@@ -28,6 +28,8 @@
 #ifndef PLUGINPATH_H
 #define PLUGINPATH_H
 
+// clang-format off
+
 #include <string>
 #include <stdexcept>
 
@@ -94,4 +96,5 @@ private:
 
 }
 
+// clang-format on
 #endif // PLUGINPATH_H

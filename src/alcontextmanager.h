@@ -28,6 +28,8 @@
 #ifndef ALCONTEXTMANAGER_H
 #define ALCONTEXTMANAGER_H
 
+// clang-format off
+
 #include <string>
 #include <map>
 #include <memory>
@@ -163,4 +165,5 @@ private:
 
 }
 
+// clang-format on
 #endif // ALCONTEXTMANAGER_H

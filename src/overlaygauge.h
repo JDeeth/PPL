@@ -28,6 +28,8 @@
 #ifndef OVERLAYWINDOW_H
 #define OVERLAYWINDOW_H
 
+// clang-format off
+
 #include "XPLMDisplay.h"
 #include "XPLMProcessing.h"
 #include "dataref.h"
@@ -191,4 +193,5 @@ private:
 
 }
 
+// clang-format on
 #endif // OVERLAYWINDOW_H
