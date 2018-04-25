@@ -81,7 +81,8 @@ HEADERS += \
     src/smoothed.h \
     src/processor.h \
     src/vertexbuffer.hpp \
-    src/command.h
+    src/command.h \
+    src/drawcallback.h
 
 SOURCES += \
     src/pluginpath.cpp \
@@ -98,7 +99,8 @@ SOURCES += \
     src/menuitem.cpp \
     src/processor.cpp \
     src/vertexbuffer.cpp \
-    src/command.cpp
+    src/command.cpp \
+    src/drawcallback.cpp
 
 withsound {
     win32 {

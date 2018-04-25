@@ -57,11 +57,13 @@ OnScreenDisplay::OnScreenDisplay(int width, int height, const std::string& title
     XPSetWidgetProperty(widget_id_, xpProperty_MainWindowType, xpMainWindowStyle_Translucent);
     XPSetWidgetProperty(widget_id_, xpProperty_Object, reinterpret_cast<intptr_t>(this));
     XPAddWidgetCallback(widget_id_, widgetCallback);
+#if defined(XPLM300)
     window_id_ = XPGetWidgetUnderlyingWindow(widget_id_);
     if (vr_enabled_ == 1)
     {
         XPLMSetWindowPositioningMode(window_id_, xplm_WindowVR, -1);
     }
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////

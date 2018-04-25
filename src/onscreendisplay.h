@@ -61,4 +61,4 @@ private:
 }
 
 // clang-format on
-#endif // ONSCREENDISPLAY_H
+#endif  // ONSCREENDISPLAY_H
