@@ -51,7 +51,9 @@ public:
 
 private:
     DataRef<int> screen_w_, screen_h_;
+#if defined (XPLM300)
     DataRef<int> vr_enabled_;
+#endif
     XPWidgetID widget_id_;
     XPLMWindowID window_id_;
     int top_, left_, bottom_, right_;

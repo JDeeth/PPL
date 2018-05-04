@@ -99,12 +99,6 @@ public:
     ALSoundBuffer& operator=(const ALSoundBuffer&) = delete;
 
     /**
-     * Make class noncopyable
-     */
-    ALSoundBuffer(const ALSoundBuffer&) = delete;
-    ALSoundBuffer& operator=(const ALSoundBuffer&) = delete;
-
-    /**
       * set up the listener at coordinate origin and play the sound buffer
       * @return play command was successfull (false could mean invalid source or buffer)
       */

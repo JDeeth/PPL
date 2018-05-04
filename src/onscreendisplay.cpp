@@ -37,7 +37,9 @@ using namespace PPL;
 OnScreenDisplay::OnScreenDisplay(int width, int height, const std::string& title):
     screen_w_("sim/graphics/view/window_width"),
     screen_h_("sim/graphics/view/window_height"),
+#if defined(XPLM300)
     vr_enabled_("sim/graphics/VR/enabled"),
+#endif
     title_(title)
 {
     left_ = (screen_w_ - width)/2;
